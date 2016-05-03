@@ -20,6 +20,9 @@ function parseQs() {
 	        q = q.split('&');
 	        for(var i = 0; i < q.length; i++){
 	            hash = q[i].split('=');
+	            var pound = hash[1].indexOf('#');
+	            hash[1] = pound > 0 ? 
+	            	hash[1].slice(0, pound) : hash[1];
 	            vars.push(hash[1]);
 	            vars[hash[0]] = hash[1];
 	        }
