@@ -1,0 +1,16 @@
+{
+  "name": "alma-iabookreader",
+  "version": "1.0.0",
+  "description": "Implementation of the IA Book Reader for Alma",
+  "main": "app.js",
+  "scripts": {
+    "start": "node ./bin/www"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "express": "^4.13.4",
+    "http-proxy": "^1.13.2",
+    "nconf": "~0.8.2"
+  }
+}

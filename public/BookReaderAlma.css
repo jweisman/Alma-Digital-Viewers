@@ -1,0 +1,14 @@
+/*
+ * Custom overrides for BookReader Demo.
+ */
+
+/* Hide print and embed functionality */
+#BRtoolbar .embed, .print {
+    display: none;
+}
+
+a.logo {
+  background: transparent url(https://developers.exlibrisgroup.com/resources/branding/logos/logo.png) no-repeat center;
+  background-size: contain;
+
+ }
