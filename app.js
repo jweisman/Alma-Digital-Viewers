@@ -6,7 +6,7 @@ app.set('port', (process.env.PORT || 5000));
 
 app.use(express.static(__dirname + '/public'));
 
-app.all("/alma/*", function(req, res) {
+app.get("/alma/*", function(req, res) {
 	almaProxy.proxy(req, res)
 });
 

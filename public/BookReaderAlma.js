@@ -2,16 +2,36 @@ var qs = parseQs();
 var mms_id = qs['mms_id'] || prompt("Please enter the BIB's MMD_ID");
 var rep_id = qs['rep_id'] || prompt("Please enter the representation's PID");
 
+// Get files data
 $.getJSON( "alma/bibs/" + mms_id + 
 	"/representations/" + rep_id + 
-	"/files?limit=100&expand=url", function( data ) {
-  var pages = data;
-  $.getJSON("alma/bibs/" + mms_id + 
-  	"?view=brief", function( data ) {
-  	var bib = data;
-  	initBR(pages, bib);
-  })
-});
+	"/files?limit=100&expand=url", 
+		function( data ) {
+		  var pages = data;
+		  // Get BIB data
+		  $.getJSON("alma/bibs/" + mms_id + 
+		  	"?view=brief", 
+				function( data ) {
+			  	var bib = data;
+			  	// Get image size
+			  	getImageMetaData(pages.representation_file[0].url,
+			  		function( data ) {
+			  			var size = data;
+			  			// Initialize book reader
+			  			initBR(pages, bib, size);
+			  		});
+				})
+		}
+);
+
+function getImageMetaData(url, next) {
+    var img = new Image();
+    img.addEventListener("load", function() {
+        next({ height: this.naturalHeight, 
+        	width: this.naturalWidth });
+    });
+    img.src = url;
+}
 
 function parseQs() {
 	var vars = [], hash;
@@ -30,7 +50,7 @@ function parseQs() {
 	return vars;
 }
 
-function initBR(pages, bib) {
+function initBR(pages, bib, size) {
 	// Adapted from https://github.com/openlibrary/bookreader/blob/master/BookReaderDemo/BookReaderJSSimple.js
 	// This file shows the minimum you need to provide to BookReader to display a book
 	//
@@ -41,12 +61,12 @@ function initBR(pages, bib) {
 
 	// Return the width of a given page.  Here we assume all images are 800 pixels wide
 	br.getPageWidth = function(index) {
-	    return 800;
+	    return size.width || 800;
 	}
 
 	// Return the height of a given page.  Here we assume all images are 1200 pixels high
 	br.getPageHeight = function(index) {
-	    return 1200;
+	    return size.height || 1200;
 	}
 
 	// We load the images from archive.org -- you can modify this function to retrieve images
