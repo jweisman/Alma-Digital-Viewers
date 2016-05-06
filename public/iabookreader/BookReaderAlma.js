@@ -3,13 +3,13 @@ var mms_id = qs['mms_id'] || prompt("Please enter the BIB's MMD_ID");
 var rep_id = qs['rep_id'] || prompt("Please enter the representation's PID");
 
 // Get files data
-$.getJSON( "alma/bibs/" + mms_id + 
+$.getJSON( "/alma/bibs/" + mms_id + 
 	"/representations/" + rep_id + 
 	"/files?limit=100&expand=url", 
 		function( data ) {
 		  var pages = data;
 		  // Get BIB data
-		  $.getJSON("alma/bibs/" + mms_id + 
+		  $.getJSON("/alma/bibs/" + mms_id + 
 		  	"?view=brief", 
 				function( data ) {
 			  	var bib = data;
@@ -130,7 +130,8 @@ function initBR(pages, bib, size) {
 
 	// Book title and the URL used for the book title link
 	br.bookTitle= bib.title + " by " + bib.author;
-	br.bookUrl  = 'http://exlibrisgroup.com';
+	br.bookUrl  = '#';
+	br.logoURL = 'http://exlibrisgroup.com'
 
 	// Override the path used to find UI images
 	br.imagesBaseURL = 'BookReader/images/';

@@ -1,0 +1,50 @@
+<html>
+<head>
+    <title>Alma Light Gallery Demo</title>
+
+		<script src="https://ajax.googleapis.com/ajax/libs/jquery/2.2.2/jquery.min.js"></script>
+
+    <!-- Photo gallery assets -->
+    <link type="text/css" rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/lightgallery/1.2.18/css/lightgallery.min.css" /> 
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/lightgallery/1.2.18/js/lightgallery.min.js"></script>
+</head>
+<script>
+$( document ).ready(function() {
+//$('#dynamic').on('click', function() {
+	var qs = parseQs();
+	var mms_id = qs['mms_id'] || prompt("Please enter the BIB's MMD_ID");
+	var rep_id = qs['rep_id'] || prompt("Please enter the representation's PID");
+
+	var files = [];
+	$.getJSON( "/alma/bibs/" + mms_id + 
+		"/representations/" + rep_id + 
+		"/files?limit=100&expand=url", 
+		function( data ) {
+			data.representation_file.forEach(function(entry) {
+				files.push({src: entry.url, subHtml: "<h4>"+entry.label+"</h4>"})
+			});
+			$(this).lightGallery({dynamic: true, dynamicEl: files});
+		}
+	);     
+});
+
+
+function parseQs() {
+	var vars = [], hash;
+	    var q = document.URL.split('?')[1];
+	    if(q != undefined){
+	        q = q.split('&');
+	        for(var i = 0; i < q.length; i++){
+	            hash = q[i].split('=');
+	            var pound = hash[1].indexOf('#');
+	            hash[1] = pound > 0 ? 
+	            	hash[1].slice(0, pound) : hash[1];
+	            vars.push(hash[1]);
+	            vars[hash[0]] = hash[1];
+	        }
+	}
+	return vars;
+}  
+
+</script>
+</html>
