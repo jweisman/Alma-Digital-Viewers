@@ -7,14 +7,14 @@ $.getJSON( "/alma/bibs/" + mms_id +
 	"/representations/" + rep_id + 
 	"/files?limit=100&expand=url", 
 		function( data ) {
-		  var pages = data;
+		  var pages = data.representation_file;
 		  // Get BIB data
 		  $.getJSON("/alma/bibs/" + mms_id + 
 		  	"?view=brief", 
 				function( data ) {
 			  	var bib = data;
 			  	// Get image size
-			  	getImageMetaData(pages.representation_file[0].url,
+			  	getImageMetaData(pages[0].url,
 			  		function( data ) {
 			  			var size = data;
 			  			// Initialize book reader
@@ -75,7 +75,7 @@ function initBR(pages, bib, size) {
 	    // reduce and rotate are ignored in this simple implementation, but we
 	    // could e.g. look at reduce and load images from a different directory
 	    // or pass the information to an image server
-	    return pages.representation_file[index].url;
+	    return pages[index].url;
 	}
 
 	// Return which side, left or right, that a given page should be displayed on
@@ -126,10 +126,10 @@ function initBR(pages, bib, size) {
 	}
 
 	// Total number of leafs
-	br.numLeafs = pages.representation_file.length;
+	br.numLeafs = pages.length;
 
 	// Book title and the URL used for the book title link
-	br.bookTitle= bib.title + " by " + bib.author;
+	br.bookTitle= bib.title;
 	br.bookUrl  = '#';
 	br.logoURL = 'http://exlibrisgroup.com'
 
@@ -140,11 +140,23 @@ function initBR(pages, bib, size) {
 	    return "Embed code not supported in bookreader demo.";
 	}
 
+	br.buildInfoDiv = function(jInfoDiv) {
+    jInfoDiv.find('.BRfloatTitle a').attr({'href': this.bookUrl, 'alt': this.bookTitle}).text(this.bookTitle);
+    jInfoDiv.find('.BRfloatCover').append([
+      '<div style="height: 140px; min-width: 80px; padding: 0; margin: 0;"><a href="', this.bookUrl, '"><img src="' + br.getPageURI(0) + '" alt="' + this.bookTitle + '" height="140px" /></a></div>'].join('')
+    );
+		jInfoDiv.find('.BRfloatTitle').append([
+      //'<div style="height: 140px; min-width: 80px; padding: 0; margin: 0;"><a href="', this.bookUrl, '"><img src="' + br.getPageURI(0) + '" alt="' + this.bookTitle + '" height="140px" /></a></div>'].join('')
+      '<h3>By ' +  bib.author + '</h3> <p>ISBN: ' + (bib.isbn || "") + '</p><p>Published: ' + (bib.place_of_publication || "None") + '</p>'].join()
+		);
+	}
+
 	// Let's go!
 	br.init();
 
 	// read-aloud and search need backend compenents and are not supported in the demo
 	$('#BRtoolbar').find('.read').hide();
+	$('#BRtoolbar').find('.share').hide();
 	$('#textSrch').hide();
 	$('#btnSrch').hide();
 }
