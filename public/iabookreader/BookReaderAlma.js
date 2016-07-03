@@ -1,28 +1,31 @@
 var qs = parseQs();
-var mms_id = qs['mms_id'] || prompt("Please enter the BIB's MMD_ID");
+var mms_id;
+var bib;
 var rep_id = qs['rep_id'] || prompt("Please enter the representation's PID");
 
-// Get files data
-$.getJSON( "/alma/bibs/" + mms_id + 
-	"/representations/" + rep_id + 
-	"/files?limit=100&expand=url", 
-		function( data ) {
-		  var pages = data.representation_file;
-		  // Get BIB data
-		  $.getJSON("/alma/bibs/" + mms_id + 
-		  	"?view=brief", 
+// Get MMS for given rep
+$.getJSON( "/alma/bibs?representation_id=" +
+	rep_id + "&view=brief",
+	function( data ) {
+		bib = data.bib[0];
+		mms_id = bib.mms_id;
+		// Get files data
+		$.getJSON( "/alma/bibs/" + mms_id + 
+			"/representations/" + rep_id + 
+			"/files?limit=100&expand=url", 
 				function( data ) {
-			  	var bib = data;
-			  	// Get image size
+				  var pages = data.representation_file;
+					// Get image size
 			  	getImageMetaData(pages[0].url,
 			  		function( data ) {
 			  			var size = data;
 			  			// Initialize book reader
 			  			initBR(pages, bib, size);
 			  		});
-				})
-		}
-);
+				}
+		);
+	});
+
 
 function getImageMetaData(url, next) {
     var img = new Image();

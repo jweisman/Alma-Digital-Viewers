@@ -11,7 +11,8 @@ var apiProxy = httpProxy.createProxyServer({
 });
 
 exports.proxy = function(req, res) {
-	var regexp = /alma(\/.*)/;
+	// Support GET /bibs only
+	var regexp = /alma(\/bibs[\/?].*)/;
 	var url = regexp.exec(req.url)[1];
 	apiProxy.web(req, res, 
 		{ 

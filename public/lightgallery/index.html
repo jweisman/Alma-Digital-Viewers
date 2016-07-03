@@ -10,22 +10,27 @@
 </head>
 <script>
 $( document ).ready(function() {
-//$('#dynamic').on('click', function() {
 	var qs = parseQs();
-	var mms_id = qs['mms_id'] || prompt("Please enter the BIB's MMD_ID");
+	var mms_id;
 	var rep_id = qs['rep_id'] || prompt("Please enter the representation's PID");
 
 	var files = [];
-	$.getJSON( "/alma/bibs/" + mms_id + 
-		"/representations/" + rep_id + 
-		"/files?limit=100&expand=url", 
+	$.getJSON( "/alma/bibs?representation_id=" +
+		rep_id + "&view=brief",
 		function( data ) {
-			data.representation_file.forEach(function(entry) {
-				files.push({src: entry.url, subHtml: "<h4>"+entry.label+"</h4>"})
-			});
-			$(this).lightGallery({dynamic: true, dynamicEl: files});
+			mms_id = data.bib[0].mms_id;
+			$.getJSON( "/alma/bibs/" + mms_id + 
+				"/representations/" + rep_id + 
+				"/files?limit=100&expand=url", 
+				function( data ) {
+					data.representation_file.forEach(function(entry) {
+						files.push({src: entry.url, subHtml: "<h4>"+entry.label+"</h4>"})
+					});
+					$(this).lightGallery({dynamic: true, dynamicEl: files});
+				}
+			);
 		}
-	);     
+	);   
 });
 
 
