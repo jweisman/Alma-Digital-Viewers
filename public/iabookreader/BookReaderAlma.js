@@ -1,10 +1,16 @@
 var qs = parseQs();
 var mms_id;
 var bib;
-var rep_id = qs['rep_id'] || prompt("Please enter the representation's PID");
+var rep_id = qs['rep_id'];
+var service = qs['service'];
 
-// Get MMS for given rep
-$.getJSON( "/alma/bibs?representation_id=" +
+if (!rep_id && !service)
+	rep_id = prompt("Please enter the representation's PID");
+
+// Use Alma Proxy
+if (rep_id) {
+	// Get MMS for given rep
+	$.getJSON( "/alma/bibs?representation_id=" +
 	rep_id + "&view=brief",
 	function( data ) {
 		bib = data.bib[0];
@@ -14,18 +20,29 @@ $.getJSON( "/alma/bibs?representation_id=" +
 			"/representations/" + rep_id + 
 			"/files?limit=100&expand=url", 
 				function( data ) {
-				  var pages = data.representation_file;
-					// Get image size
-			  	getImageMetaData(pages[0].url,
-			  		function( data ) {
-			  			var size = data;
-			  			// Initialize book reader
-			  			initBR(pages, bib, size);
-			  		});
+					bib.files = data.representation_file;
+			  	getImageMetaData(bib.files[0].url, init);
 				}
 		);
 	});
-
+} else if (service) { // Use delivery service
+	// Switch back to .getJSON once accept header bug is fixed
+	$.getJSON(service)
+	.done(
+		function(data) {
+			bib = data;
+			bib.title = getMetadata('Title');
+			bib.author = getMetadata('Creator');
+			bib.publisher_const = getMetadata('Date of Publication');
+	  	getImageMetaData(bib.files[0].url, init);
+		}
+	)
+	.fail(
+		function() {
+			alert('Cannot retrieve service.');
+		}
+	);
+}
 
 function getImageMetaData(url, next) {
     var img = new Image();
@@ -34,6 +51,15 @@ function getImageMetaData(url, next) {
         	width: this.naturalWidth });
     });
     img.src = url;
+}
+
+function init(size) {
+	initBR(bib.files, bib, size);
+}
+
+function getMetadata(name) {
+	var item = bib.metadata.find(function(x) { console.log(x); return x.label == name});
+	if (item) return item.value;
 }
 
 function parseQs() {
@@ -150,7 +176,7 @@ function initBR(pages, bib, size) {
     );
 		jInfoDiv.find('.BRfloatTitle').append([
       //'<div style="height: 140px; min-width: 80px; padding: 0; margin: 0;"><a href="', this.bookUrl, '"><img src="' + br.getPageURI(0) + '" alt="' + this.bookTitle + '" height="140px" /></a></div>'].join('')
-      '<h3>By ' +  bib.author + '</h3> <p>ISBN: ' + (bib.isbn || "") + '</p><p>Published: ' + (bib.place_of_publication || "None") + '</p>'].join()
+      '<h3>By ' +  bib.author + '</h3> <p>ISBN: ' + (bib.isbn || "") + '</p><p>Published: ' + (bib.publisher_const || "None") + '</p>'].join()
 		);
 	}
 
