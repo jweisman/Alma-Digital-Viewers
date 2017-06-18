@@ -25,9 +25,12 @@ if (rep_id) {
 				}
 		);
 	});
-} else if (service) { // Use delivery service
-	// Switch back to .getJSON once accept header bug is fixed
-	$.getJSON(service)
+} else if (service) { 
+	// Use delivery service
+	$.ajax({
+		dataType: "json", url: service, 
+		xhrFields: { withCredentials: true } 
+	})
 	.done(
 		function(data) {
 			bib = data;
@@ -38,8 +41,16 @@ if (rep_id) {
 		}
 	)
 	.fail(
-		function() {
-			alert('Cannot retrieve service.');
+		function(jqXHR, textStatus, errorThrown) {
+			var msg;
+			if (errorThrown=='Forbidden') {
+				msg = 'You don\'t seem to have access to this material.';
+				msg += '\n(' + jqXHR.getResponseHeader('X-Denied-Message') +')';
+			} else {
+				console.log('errorThrown', errorThrown);
+				msg = 'Cannot retrieve service. ';
+			}
+			alert(msg);
 		}
 	);
 }
@@ -58,7 +69,7 @@ function init(size) {
 }
 
 function getMetadata(name) {
-	var item = bib.metadata.find(function(x) { console.log(x); return x.label == name});
+	var item = bib.metadata.find(function(x) { return x.label == name});
 	if (item) return item.value;
 }
 
