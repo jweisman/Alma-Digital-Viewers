@@ -16,10 +16,10 @@ exports.proxy = function(req, res) {
 	var url = regexp.exec(req.url)[1];
 	apiProxy.web(req, res, 
 		{ 
-			target: nconf.get('alma_host') +
+			target: (nconf.get('ALMA_APIHOST') || 'https://api-na.hosted.exlibrisgroup.com/almaws/v1') +
 				url,
 			headers: {
-				"Authorization": "apikey " + nconf.get('api_key'),
+				"Authorization": "apikey " + nconf.get('ALMA_APIKEY'),
 				"Accept": "application/json"
 			}
 		});

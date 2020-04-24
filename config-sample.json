@@ -1,4 +1,4 @@
 { 
-	"alma_host": "https://api-na.hosted.exlibrisgroup.com/almaws/v1",
-	"api_key":   "{API_KEY}"
+	"ALMA_APIHOST": "https://api-na.hosted.exlibrisgroup.com/almaws/v1",
+	"ALMA_APIKEY":   "{API_KEY}"
 }
